@@ -17,14 +17,14 @@ namespace Task01.Controllers
             _context = context;
         }
 
-        // صفحة عرض الموظفين (Display Page)
+        // Display Employees Page
         public IActionResult Index()
         {
             var employees = _context.Employees.ToList();
             return View(employees);
         }
 
-        // صفحة إضافة الموظف (Add Page)
+        // Add Employee Page
         public IActionResult Create()
         {
             return View();
@@ -33,11 +33,11 @@ namespace Task01.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(Employee emp)
         {
-            // 1. حفظ في قاعدة البيانات
+            // 1. Save to database
             _context.Employees.Add(emp);
             await _context.SaveChangesAsync();
 
-            // 2. بث البيانات لكل الـ Clients المتصلين
+            // 2. Broadcast data to all connected clients
             await _hubContext.Clients.All.SendAsync("ReceiveNewEmployee", emp.Name, emp.Address, emp.Age);
 
             return Json(new { success = true });
