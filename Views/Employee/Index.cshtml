@@ -1,4 +1,5 @@
-﻿@{
+@model List<Task01.Models.Employee>
+@{
     ViewData["Title"] = "Display Employees";
 }
 
@@ -13,32 +14,33 @@
         </tr>
     </thead>
     <tbody>
+        @foreach (var emp in Model)
+        {
+            <tr>
+                <td>@emp.Name</td>
+                <td>@emp.Address</td>
+                <td>@emp.Age</td>
+            </tr>
+        }
     </tbody>
 </table>
 
 @section Scripts {
     <script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
     <script>
-        // 1. Set up the connection to the Hub (same path we wrote in Program.cs)
         var connection = new signalR.HubConnectionBuilder()
             .withUrl("/employeeHub")
             .build();
 
-        // 2. Receiving data from the server
-        // "ReceiveNewEmployee" must be the same name we entered in the Controller
         connection.on("ReceiveNewEmployee", function (name, address, age) {
-            // build a new row with the received employee data
             var newRow = `<tr>
                             <td>${name}</td>
                             <td>${address}</td>
                             <td>${age}</td>
                           </tr>`;
-        
-            // add the new row to the table body
             document.querySelector("#employeesTable tbody").innerHTML += newRow;
         });
 
-        // start the connection
         connection.start().then(function () {
             console.log("Connected to SignalR Hub!");
         }).catch(function (err) {

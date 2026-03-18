@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using Task01.Data;
 using Task01.Hubs;
 
 namespace Task01
@@ -11,6 +13,8 @@ namespace Task01
             // Add services to the container.
             builder.Services.AddControllersWithViews();
             builder.Services.AddSignalR();
+            builder.Services.AddDbContext<AppDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             var app = builder.Build();
 

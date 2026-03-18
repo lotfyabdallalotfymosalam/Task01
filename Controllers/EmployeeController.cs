@@ -1,24 +1,27 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR; // مهم جداً
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Task01.Data;
 using Task01.Hubs;
-using Task01.Models; // اتأكد إن عندك موديل اسمه Employee
+using Task01.Models;
 
 namespace Task01.Controllers
 {
     public class EmployeeController : Controller
     {
         private readonly IHubContext<EmployeeHub> _hubContext;
+        private readonly AppDbContext _context;
 
-        // بنعمل Injection للـ HubContext هنا
-        public EmployeeController(IHubContext<EmployeeHub> hubContext)
+        public EmployeeController(IHubContext<EmployeeHub> hubContext, AppDbContext context)
         {
             _hubContext = hubContext;
+            _context = context;
         }
 
         // صفحة عرض الموظفين (Display Page)
         public IActionResult Index()
         {
-            return View();
+            var employees = _context.Employees.ToList();
+            return View(employees);
         }
 
         // صفحة إضافة الموظف (Add Page)
@@ -30,18 +33,14 @@ namespace Task01.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(Employee emp)
         {
-            // 1. هنا المفروض كود الحفظ في قاعدة البيانات (DbContext)
-            // _context.Employees.Add(emp);
-            // await _context.SaveChangesAsync();
+            // 1. حفظ في قاعدة البيانات
+            _context.Employees.Add(emp);
+            await _context.SaveChangesAsync();
 
-            // 2. السطر ده هو اللي بيعمل Broadcasting (إذاعة) لكل الناس
-            // بنبعت كائن الموظف (emp) لكل الـ Clients المتصلين
-            // في الـ JavaScript Client، هتستقبل البيانات دي في الـ "ReceiveNewEmployee" event
+            // 2. بث البيانات لكل الـ Clients المتصلين
             await _hubContext.Clients.All.SendAsync("ReceiveNewEmployee", emp.Name, emp.Address, emp.Age);
 
-            return RedirectToAction("Index");
-
-
+            return Json(new { success = true });
         }
     }
 }

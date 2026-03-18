@@ -1,8 +1,41 @@
-﻿@model Task01.Models.Employee
+@model Task01.Models.Employee
 
-<form asp-action="Create" method="post">
+<h2>Add Employee</h2>
+
+<form id="createForm">
     <input asp-for="Name" placeholder="Name" class="form-control" /><br />
     <input asp-for="Address" placeholder="Address" class="form-control" /><br />
     <input asp-for="Age" placeholder="Age" class="form-control" /><br />
     <button type="submit" class="btn btn-primary">Add Employee</button>
 </form>
+
+<div id="successMessage" class="alert alert-success mt-3" style="display:none;">
+    Employee added successfully!
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById("createForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            var form = e.target;
+            var formData = new FormData(form);
+
+            fetch("@Url.Action("Create", "Employee")", {
+                method: "POST",
+                body: formData
+            })
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+                if (data.success) {
+                    document.getElementById("successMessage").style.display = "block";
+                    form.reset();
+                    setTimeout(function () {
+                        document.getElementById("successMessage").style.display = "none";
+                    }, 2000);
+                }
+            })
+            .catch(function (err) { console.error(err); });
+        });
+    </script>
+}
