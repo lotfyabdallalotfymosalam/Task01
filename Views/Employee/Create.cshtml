@@ -1,0 +1,8 @@
+﻿@model Task01.Models.Employee
+
+<form asp-action="Create" method="post">
+    <input asp-for="Name" placeholder="Name" class="form-control" /><br />
+    <input asp-for="Address" placeholder="Address" class="form-control" /><br />
+    <input asp-for="Age" placeholder="Age" class="form-control" /><br />
+    <button type="submit" class="btn btn-primary">Add Employee</button>
+</form>
